@@ -107,7 +107,7 @@ public class SpawnProtectionListener implements Listener {
         event.setCancelled(true);
         player.sendMessage(config.getSpawnDenyMessage());
         logger.log("阻止倒桶出生点 | 玩家: " + player.getName() +
-                " | 桶: " + event.getBucket().getType() +
+                " | 桶: " + event.getBucket().name() +
                 " | 位置: " + formatLocation(block));
     }
 
