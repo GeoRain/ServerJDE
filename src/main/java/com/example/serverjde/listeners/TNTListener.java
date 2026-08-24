@@ -105,14 +105,15 @@ public class TNTListener implements Listener {
     public void onEntityExplode(EntityExplodeEvent event) {
         if (!config.isTntEnabled() || !config.isTntBlockExplosion()) return;
 
-        EntityType type = event.getEntityType();
-        if (type == EntityType.TNT || type == EntityType.TNT_MINECART) {
+        // 使用 NamespacedKey 比较，兼容不同版本的 EntityType 枚举名
+        String typeKey = event.getEntityType().getKey().toString();
+        if (typeKey.equals("minecraft:tnt") || typeKey.equals("minecraft:tnt_minecart")) {
             event.setCancelled(true);
             if (event.getEntity() != null) {
                 event.getEntity().remove();
             }
             logger.log("阻止 TNT 爆炸 | 位置: " + formatLocation(event.getLocation().getBlock()) +
-                    " | 类型: " + type);
+                    " | 类型: " + typeKey);
         }
     }
 
