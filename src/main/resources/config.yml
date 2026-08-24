@@ -1,0 +1,88 @@
+# ServerJDE 插件配置文件
+# Minecraft 1.20.1 Paper 服务器安全插件
+
+# ==================== 连接风险检测 ====================
+connection:
+  # 是否启用连接风险检测
+  enabled: true
+  # 同一 IP 最大连接数（超过将被踢出）
+  max-connections-per-ip: 3
+  # 连接频率检测（毫秒内最大连接次数）
+  connection-flood-timeframe-ms: 1000
+  connection-flood-max-attempts: 5
+  # 是否阻止 VPN/代理（基于 IP 黑名单，可选）
+  block-vpn: false
+  # 异常客户端品牌检测（包含以下关键词的客户端品牌将被阻止）
+  blocked-client-brands:
+    - "Wurst"
+    - "Impact"
+    - "Jigsaw"
+    - "Flare"
+    - "LiquidBounce"
+    - "Sigma"
+    - "Inertia"
+  # 黑名单 IP 列表
+  blacklisted-ips:
+    - "0.0.0.0"
+  # 触发风险后是否踢出玩家
+  kick-on-risk: true
+  # 风险踢出消息
+  kick-message: "§c[ServerJDE] §f检测到异常客户端连接，已阻止！"
+
+# ==================== TNT 禁用 ====================
+tnt:
+  # 是否启用 TNT 禁用
+  enabled: true
+  # 阻止放置 TNT
+  block-place: true
+  # 阻止点燃 TNT（打火石/火焰弹对 TNT）
+  block-ignite: true
+  # 阻止 TNT 爆炸
+  block-explosion: true
+  # 阻止合成 TNT
+  block-craft: true
+  # 是否在世界中清除已存在的 TNT
+  remove-existing-on-load: false
+  # 阻止消息（玩家侧）
+  deny-message: "§c[ServerJDE] §fTNT 已被禁止使用！"
+
+# ==================== 出生点保护 ====================
+spawn-protection:
+  # 是否启用出生点保护
+  enabled: true
+  # 保护范围（以世界出生点为中心）
+  # 范围 X: 64, Y: 255 (全高度), Z: 64
+  range-x: 64
+  range-y: 255
+  range-z: 64
+  # 保护的世界列表（留空则保护所有世界的主世界）
+  protected-worlds:
+    - "world"
+  # 阻止破坏方块
+  block-break: true
+  # 阻止放置方块
+  block-place: true
+  # 阻止爆炸（TNT/苦力怕/TNT 矿车等）
+  block-explosion: true
+  # 阻止流体流动（水/熔岩）造成破坏
+  block-fluid-flow: true
+  # 阻止活塞推动
+  block-piston: true
+  # 阻止火焰蔓延和烧毁
+  block-fire: true
+  # 阻止耕地踩踏
+  block-farmland-trample: true
+  # 阻止消息
+  deny-message: "§c[ServerJDE] §f出生点区域受保护，禁止破坏！"
+
+# ==================== 日志与通知 ====================
+logging:
+  # 是否在控制台记录日志
+  console-log: true
+  # 是否记录到文件（plugins/ServerJDE/logs.log）
+  file-log: true
+  # 是否向有权限的玩家发送提醒
+  notify-admins: true
+
+# 消息前缀
+prefix: "§8[§bServerJDE§8] §7"
