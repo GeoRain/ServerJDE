@@ -1,0 +1,28 @@
+name: ServerJDE
+version: '${project.version}'
+main: com.example.serverjde.ServerJDE
+api-version: '1.20'
+author: ServerJDE
+description: Minecraft 1.20.1 Paper 服务器安全插件 - 连接风险检测、TNT 禁用、出生点保护
+website: https://github.com/ServerJDE
+
+commands:
+  serverjde:
+    description: ServerJDE 插件主命令
+    usage: /serverjde <reload|status|info>
+    aliases: [sjde]
+    permission: serverjde.admin
+
+permissions:
+  serverjde.admin:
+    description: 允许管理 ServerJDE 插件
+    default: op
+  serverjde.bypass.spawn:
+    description: 允许绕过出生点保护
+    default: op
+  serverjde.bypass.tnt:
+    description: 允许绕过 TNT 禁用
+    default: op
+  serverjde.bypass.connection:
+    description: 允许绕过连接风险检测
+    default: op
