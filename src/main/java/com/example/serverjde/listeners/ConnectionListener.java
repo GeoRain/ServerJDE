@@ -4,7 +4,6 @@ import com.example.serverjde.ServerJDE;
 import com.example.serverjde.config.ConfigManager;
 import com.example.serverjde.utils.Logger;
 import com.example.serverjde.utils.TextUtil;
-import io.papermc.paper.event.player.AsyncPlayerClientBrandEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,8 +13,10 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 3. 异常客户端品牌（作弊客户端）
  * 4. 黑名单 IP
  */
-public class ConnectionListener implements Listener {
+public class ConnectionListener implements Listener, PluginMessageListener {
 
     private final ServerJDE plugin;
     private final ConfigManager config;
@@ -127,17 +128,17 @@ public class ConnectionListener implements Listener {
     }
 
     /**
-     * Paper 客户端品牌接收事件
-     * 用于检测作弊客户端
+     * 通过插件消息通道接收客户端品牌
+     * 频道: minecraft:brand
+     * 格式: VarInt 长度前缀 + UTF-8 字符串
      */
-    @EventHandler
-    public void onClientBrand(AsyncPlayerClientBrandEvent event) {
+    @Override
+    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (!config.isConnectionEnabled()) return;
-
-        Player player = event.getPlayer();
+        if (!"minecraft:brand".equals(channel)) return;
         if (player.hasPermission("serverjde.bypass.connection")) return;
 
-        String brand = event.getBrand();
+        String brand = readBrand(message);
         String ip = getPlayerIp(player);
 
         logger.log("客户端品牌 | 玩家: " + player.getName() + " | 品牌: " + brand + " | IP: " + ip);
@@ -145,7 +146,7 @@ public class ConnectionListener implements Listener {
             ipClientBrand.put(ip, brand);
         }
 
-        // 检查是否为被阻止的客户端品牌
+        // 检查是否为被阻止的客户端品牌（作弊客户端）
         if (isBlockedBrand(brand)) {
             String reason = "异常客户端品牌: " + brand + " | 玩家: " + player.getName();
             logger.logRisk(player, reason);
@@ -154,6 +155,30 @@ public class ConnectionListener implements Listener {
                 player.kick(TextUtil.toComponent(
                         config.getKickMessage() + "\n§7原因: 异常客户端 " + brand));
             });
+        }
+    }
+
+    /**
+     * 从原始字节中解析客户端品牌字符串
+     * Minecraft 协议格式: VarInt 长度前缀 + UTF-8 字符串
+     */
+    private String readBrand(byte[] message) {
+        if (message == null || message.length == 0) return "";
+        try {
+            int pos = 0;
+            int length = 0;
+            int shift = 0;
+            // 读取 VarInt 长度前缀
+            while (pos < message.length) {
+                byte b = message[pos++];
+                length |= (b & 0x7F) << shift;
+                shift += 7;
+                if ((b & 0x80) == 0) break;
+            }
+            if (length <= 0 || pos + length > message.length) return "";
+            return new String(message, pos, length, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "";
         }
     }
 
