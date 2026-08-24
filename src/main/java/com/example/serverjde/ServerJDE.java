@@ -69,9 +69,13 @@ public class ServerJDE extends JavaPlugin {
      * 注册所有事件监听器
      */
     private void registerListeners() {
-        getServer().getPluginManager().registerEvents(new ConnectionListener(this), this);
+        ConnectionListener connectionListener = new ConnectionListener(this);
+        getServer().getPluginManager().registerEvents(connectionListener, this);
         getServer().getPluginManager().registerEvents(new TNTListener(this), this);
         getServer().getPluginManager().registerEvents(new SpawnProtectionListener(this), this);
+
+        // 注册客户端品牌消息通道（用于检测作弊客户端）
+        getServer().getMessenger().registerIncomingPluginChannel(this, "minecraft:brand", connectionListener);
     }
 
     @Override
